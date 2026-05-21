@@ -1,23 +1,36 @@
 // ============================================================
 // ARQUIVO DE PRODUTOS — OFERTATOP
 // ============================================================
-// Como adicionar um produto:
+//
+// ★ SUA TAG DE AFILIADO — só mexa aqui se mudar de conta
+const AFILIADO_TAG = 'carva00-20';
+//
+// ── COMO FUNCIONA A TAG ──────────────────────────────────
+// Você NÃO precisa colocar sua tag manualmente em cada link.
+// O sistema injeta a tag carva00-20 automaticamente em
+// QUALQUER link da Amazon antes de abrir — mesmo que você
+// esqueça, copie errado ou cole um link sem tag.
+//
+// ── COMO ADICIONAR UM PRODUTO ────────────────────────────
 // 1. Copie um bloco { ... } abaixo
-// 2. Cole dentro do array PRODUTOS
+// 2. Cole dentro do array PRODUTOS (antes do último })
 // 3. Preencha os campos
-// 4. Salve o arquivo
+// 4. No campo "link", cole o link do produto na Amazon
+//    (pode ser qualquer URL da Amazon — a tag é injetada
+//    automaticamente pelo sistema)
 //
-// COMO PEGAR A IMAGEM DA AMAZON:
+// ── COMO PEGAR O LINK DO PRODUTO ─────────────────────────
+// Opção A (mais fácil): copie a URL da barra do navegador
+//   Ex: https://www.amazon.com.br/dp/B09XYZ123
+// Opção B (melhor rastreio): use o SiteStripe
+//   → Instale a extensão Amazon SiteStripe
+//   → Visite o produto, clique em "Texto" no topo
+//   → Copie o link amzn.to/...
+//
+// ── COMO PEGAR A IMAGEM ───────────────────────────────────
 // 1. Abra o produto na Amazon
-// 2. Clique com botão direito na imagem principal
-// 3. Clique em "Copiar endereço da imagem"
-// 4. Cole no campo "imagem" abaixo
-//
-// COMO PEGAR SEU LINK DE AFILIADO:
-// 1. Instale a extensão "SiteStripe" da Amazon Associados
-// 2. Ao visitar qualquer produto, clique em "Texto" no topo
-// 3. Copie o link encurtado (amzn.to/...)
-// 4. Cole no campo "link" abaixo
+// 2. Botão direito na imagem principal → "Copiar endereço"
+// 3. Cole no campo "imagem"
 // ============================================================
 
 const PRODUTOS = [
@@ -376,9 +389,57 @@ const PRODUTOS = [
       "Bateria de semanas",
       "Resistente à água IPX8"
     ]
-  }
+  },
+  // ─── TV ─────────────────────────────────────────────────
+  {
+    id: "tcl-32s5k-google-tv",
+    nome: "Smart TV TCL 32\" QLED Full HD Google TV Wi-Fi Bluetooth HDR10 Dolby Audio 32S5K",
+    categoria: "Eletrônicos",
+    emoji: "📺",
+    preco_de: "R$ 1.299,00",
+    preco_por: "R$ 811,80",
+    desconto: "38%",
+    avaliacao: 4.4,
+    avaliacoes: "88",
+    badge: "hot",
+    destaque: true,
+    estoque: "Mais de 500 vendidos esse mês",
+    parcelamento: "12x de R$ 75,24 sem juros",
+    link: "https://www.amazon.com.br/TCL-Polegadas-Bluetooth-Google-32S5K/dp/B0FTGL2XBC?linkCode=ll2&tag=carva00-20&linkId=651b459ccf8c5c0db04c85b6113815e1&ref_=as_li_ss_tl",
+    imagem: "https://m.media-amazon.com/images/I/61jW+tFc5DL._AC_SL1000_.jpg",
+    descricao: "Smart TV compacta com painel QLED Full HD, Google TV nativo com acesso a Netflix, YouTube e Disney+, Chromecast integrado, 20W RMS de som e design sem bordas. Ideal para quarto, escritório ou cozinha.",
+    features: [
+      "Tela QLED Full HD 32\" com HDR10 e Dolby Audio",
+      "Google TV — acesso à Play Store, YouTube, Netflix, Disney+",
+      "Chromecast e Miracast integrados",
+      "Wi-Fi, Bluetooth 5.0, 2x HDMI, 1x USB, LAN",
+      "20W RMS — som mais potente que TVs comuns de 32\""
+    ]
+  },
 
 ];
 
 // ─── NÃO MEXA ABAIXO DESTA LINHA ────────────────────────
-console.log(`[OfertaTop] ${PRODUTOS.length} produtos carregados.`);
+// Injeção automática da tag de afiliado em todos os links
+
+function tagAmazonURL(url) {
+  if (!url || typeof url !== 'string') return url;
+  try {
+    if (url.includes('amzn.to') || (url.includes('amzn.') && !url.includes('amazon.com'))) {
+      const clean = url.replace(/([?&])tag=[^&]*/g, '$1').replace(/[?&]$/, '');
+      const sep = clean.includes('?') ? '&' : '?';
+      return clean + sep + 'tag=' + AFILIADO_TAG;
+    }
+    if (url.includes('amazon.com')) {
+      const u = new URL(url);
+      u.searchParams.set('tag', AFILIADO_TAG);
+      if (!u.searchParams.get('linkCode')) u.searchParams.set('linkCode', 'll2');
+      return u.toString();
+    }
+  } catch(e) {}
+  return url;
+}
+
+PRODUTOS.forEach(p => { if (p.link) p.link = tagAmazonURL(p.link); });
+
+console.log('[OfertaTop] ' + PRODUTOS.length + ' produtos carregados | tag: ' + AFILIADO_TAG);
