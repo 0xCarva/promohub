@@ -964,6 +964,148 @@ footer {
 .empty-state p { font-size: 15px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
 .empty-state span { font-size: 13px; }
 
+
+/* ─── INLINE COUPON STRIP ───────────────────────────────── */
+.coupon-strip-wrap {
+  margin-bottom: 24px;
+}
+.coupon-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+/* Card de cupom inline — estilo Amazon */
+.ci-card {
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  text-decoration: none;
+  transition: box-shadow .2s, transform .2s;
+}
+.ci-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,.13);
+  transform: translateY(-2px);
+}
+/* Tipo: código de desconto */
+.ci-card.ci-code {
+  background: var(--white);
+  border: 1px solid var(--border);
+}
+.ci-card.ci-code .ci-accent {
+  height: 4px;
+  background: var(--orange);
+}
+/* Tipo: prime */
+.ci-card.ci-prime {
+  background: #0a2540;
+  border: 1px solid #0a2540;
+  color: #fff;
+}
+/* Tipo: destaque colorido */
+.ci-card.ci-highlight {
+  background: #232f3e;
+  border: 1px solid #232f3e;
+  color: #fff;
+}
+.ci-body {
+  padding: 14px 16px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ci-kicker {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  opacity: .7;
+}
+.ci-code .ci-kicker { color: var(--text2); }
+.ci-prime .ci-kicker,
+.ci-highlight .ci-kicker { color: rgba(255,255,255,.65); }
+
+.ci-value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+.ci-code .ci-value { color: var(--red); }
+.ci-prime .ci-value,
+.ci-highlight .ci-value { color: #fff; }
+
+.ci-desc {
+  font-size: 12px;
+  line-height: 1.45;
+}
+.ci-code .ci-desc { color: var(--text2); }
+.ci-prime .ci-desc,
+.ci-highlight .ci-desc { color: rgba(255,255,255,.75); }
+
+.ci-footer {
+  padding: 10px 16px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+/* código copiável */
+.ci-code-box {
+  display: flex;
+  align-items: center;
+  background: #f8f8f8;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  overflow: hidden;
+  flex: 1;
+}
+.ci-code-val {
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  padding: 7px 10px;
+  letter-spacing: .8px;
+  flex: 1;
+}
+.ci-copy-btn {
+  background: var(--orange);
+  border: none;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 12px;
+  height: 100%;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+  min-height: 32px;
+}
+.ci-copy-btn:hover { background: var(--orange-dark); }
+.ci-copy-btn.done { background: var(--green); }
+
+/* botão "ver cupons" */
+.ci-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.25);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .15s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ci-cta:hover { background: rgba(255,255,255,.25); }
+.ci-cta svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.5; }
 /* ─── RESPONSIVE ──────────────────────────────────────────── */
 @media (max-width: 860px) {
   .hero-slide { grid-template-columns: 1fr; }
@@ -1072,6 +1214,16 @@ footer {
     <button class="hscroll-btn next" onclick="hscroll('hot',1)" aria-label="Próximo">
       <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
+  </div>
+
+
+  <!-- INLINE COUPON STRIP -->
+  <div class="coupon-strip-wrap">
+    <div class="sec-header">
+      <h2>Cupons em destaque</h2>
+      <a href="cupons.html">Ver todos os cupons</a>
+    </div>
+    <div class="coupon-strip" id="couponStrip"></div>
   </div>
 
   <!-- ALL PRODUCTS -->
@@ -1203,6 +1355,7 @@ function init() {
   }
   buildHero();
   buildHotTrack();
+  buildCouponStrip();
   buildCatStrip();
   render();
   countdown();
@@ -1453,8 +1606,176 @@ function trackClick(id) {
   console.log('[OfertaTop] click:', id, '→', p ? p.link : '?');
 }
 
+
+// ── INLINE COUPON STRIP ───────────────────────────────────
+const CUPONS_DESTAQUE = [
+  {
+    tipo: 'code',
+    kicker: 'Código ativo agora',
+    value: '10% OFF',
+    desc: 'Em pedidos acima de R$150 em produtos selecionados',
+    code: 'CAMISA1',
+  },
+  {
+    tipo: 'code',
+    kicker: 'Código verificado hoje',
+    value: 'R$250 OFF',
+    desc: 'Em compras acima de R$1.500 — ideal para eletrônicos',
+    code: 'TORCIDA12',
+  },
+  {
+    tipo: 'prime',
+    kicker: 'Exclusivo Prime',
+    value: 'Frete grátis + 5% de volta',
+    desc: 'Em todas as compras com Cartão Amazon Prime',
+    link: 'https://www.amazon.com.br/prime?tag=carva00-20',
+  },
+  {
+    tipo: 'highlight',
+    kicker: 'Exclusivo no app',
+    value: 'R$20 OFF',
+    desc: 'Em compras acima de R$80 pelo aplicativo Amazon',
+    link: 'https://www.amazon.com.br?tag=carva00-20',
+  },
+];
+
+function buildCouponStrip() {
+  const strip = document.getElementById('couponStrip');
+  if (!strip) return;
+  strip.innerHTML = CUPONS_DESTAQUE.map((c, i) => {
+    if (c.tipo === 'code') {
+      return `
+      <div class="ci-card ci-code">
+        <div class="ci-accent"></div>
+        <div class="ci-body">
+          <div class="ci-kicker">${c.kicker}</div>
+          <div class="ci-value">${c.value}</div>
+          <div class="ci-desc">${c.desc}</div>
+        </div>
+        <div class="ci-footer">
+          <div class="ci-code-box">
+            <span class="ci-code-val">${c.code}</span>
+            <button class="ci-copy-btn" id="cicopy-${i}" onclick="copyCi(event,'${c.code}',${i})">Copiar</button>
+          </div>
+        </div>
+      </div>`;
+    }
+    const cls = c.tipo === 'prime' ? 'ci-prime' : 'ci-highlight';
+    return `
+    <a class="ci-card ${cls}" href="${c.link}" target="_blank" rel="nofollow noopener">
+      <div class="ci-body">
+        <div class="ci-kicker">${c.kicker}</div>
+        <div class="ci-value">${c.value}</div>
+        <div class="ci-desc">${c.desc}</div>
+      </div>
+      <div class="ci-footer">
+        <span class="ci-cta">
+          Ver oferta
+          <svg viewBox="0 0 24 24"><path d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </span>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+function copyCi(e, code, i) {
+  e.preventDefault(); e.stopPropagation();
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById('cicopy-' + i);
+    if (btn) { btn.textContent = 'Copiado!'; btn.classList.add('done'); }
+    setTimeout(() => {
+      if (btn) { btn.textContent = 'Copiar'; btn.classList.remove('done'); }
+    }, 2500);
+    toast('Código ' + code + ' copiado!');
+  });
+}
+
 // ─── INTERCEPTOR GLOBAL ─ veja abaixo
 
+
+
+// ── INLINE COUPON STRIP ───────────────────────────────────
+const CUPONS_DESTAQUE = [
+  {
+    tipo: 'code',
+    kicker: 'Código ativo agora',
+    value: '10% OFF',
+    desc: 'Em pedidos acima de R$150 em produtos selecionados',
+    code: 'CAMISA1',
+  },
+  {
+    tipo: 'code',
+    kicker: 'Código verificado hoje',
+    value: 'R$250 OFF',
+    desc: 'Em compras acima de R$1.500 — ideal para eletrônicos',
+    code: 'TORCIDA12',
+  },
+  {
+    tipo: 'prime',
+    kicker: 'Exclusivo Prime',
+    value: 'Frete grátis + 5% de volta',
+    desc: 'Em todas as compras com Cartão Amazon Prime',
+    link: 'https://www.amazon.com.br/prime?tag=carva00-20',
+  },
+  {
+    tipo: 'highlight',
+    kicker: 'Exclusivo no app',
+    value: 'R$20 OFF',
+    desc: 'Em compras acima de R$80 pelo aplicativo Amazon',
+    link: 'https://www.amazon.com.br?tag=carva00-20',
+  },
+];
+
+function buildCouponStrip() {
+  const strip = document.getElementById('couponStrip');
+  if (!strip) return;
+  strip.innerHTML = CUPONS_DESTAQUE.map((c, i) => {
+    if (c.tipo === 'code') {
+      return `
+      <div class="ci-card ci-code">
+        <div class="ci-accent"></div>
+        <div class="ci-body">
+          <div class="ci-kicker">${c.kicker}</div>
+          <div class="ci-value">${c.value}</div>
+          <div class="ci-desc">${c.desc}</div>
+        </div>
+        <div class="ci-footer">
+          <div class="ci-code-box">
+            <span class="ci-code-val">${c.code}</span>
+            <button class="ci-copy-btn" id="cicopy-${i}" onclick="copyCi(event,'${c.code}',${i})">Copiar</button>
+          </div>
+        </div>
+      </div>`;
+    }
+    const cls = c.tipo === 'prime' ? 'ci-prime' : 'ci-highlight';
+    return `
+    <a class="ci-card ${cls}" href="${c.link}" target="_blank" rel="nofollow noopener">
+      <div class="ci-body">
+        <div class="ci-kicker">${c.kicker}</div>
+        <div class="ci-value">${c.value}</div>
+        <div class="ci-desc">${c.desc}</div>
+      </div>
+      <div class="ci-footer">
+        <span class="ci-cta">
+          Ver oferta
+          <svg viewBox="0 0 24 24"><path d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </span>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+function copyCi(e, code, i) {
+  e.preventDefault(); e.stopPropagation();
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById('cicopy-' + i);
+    if (btn) { btn.textContent = 'Copiado!'; btn.classList.add('done'); }
+    setTimeout(() => {
+      if (btn) { btn.textContent = 'Copiar'; btn.classList.remove('done'); }
+    }, 2500);
+    toast('Código ' + code + ' copiado!');
+  });
+}
 
 // ─── INTERCEPTOR GLOBAL DE LINKS AMAZON ─────────────────
 // Camada de segurança extra: captura QUALQUER clique em link
