@@ -416,40 +416,55 @@ img { display: block; max-width: 100%; }
 .p-pricing {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
-.p-price-old {
-  font-size: 11px;
-  color: var(--text3);
-  text-decoration: line-through;
+/* Badge "Menor preço em 365 dias" — igual Amazon */
+.p-lowest-price {
+  display: inline-block;
+  background: #B12704;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 3px;
+  width: fit-content;
+  margin-bottom: 1px;
 }
+/* Linha: -44%  R$999,00  De: R$1.799,00 */
 .p-price-row {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
+/* -44% em vermelho grande — igual Amazon */
+.p-discount {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #B12704;
+  letter-spacing: -0.3px;
+}
+/* Preço principal */
 .p-price {
   font-family: 'Geist Mono', monospace;
   font-size: 18px;
   font-weight: 600;
-  color: var(--red);
+  color: var(--text);
   letter-spacing: -0.5px;
 }
-.p-discount {
+/* "De: R$1.799,00" — riscado, menor, depois do preço */
+.p-price-old {
   font-size: 11px;
-  font-weight: 700;
-  color: var(--white);
-  background: var(--red);
-  padding: 1px 6px;
-  border-radius: 3px;
+  color: var(--text3);
+  text-decoration: line-through;
+  align-self: baseline;
 }
 .p-installment {
   font-size: 11px;
   color: var(--text2);
 }
 .p-installment strong { color: var(--text); font-weight: 600; }
-
 .p-stock {
   font-size: 11px;
   color: var(--red);
@@ -821,21 +836,36 @@ img { display: block; max-width: 100%; }
   letter-spacing: -0.2px;
 }
 .modal-desc { font-size: 13px; color: var(--text2); line-height: 1.65; margin-bottom: 16px; }
-.modal-price-old { font-size: 13px; color: var(--text3); text-decoration: line-through; margin-bottom: 4px; }
-.modal-price-row {
-  display: flex; align-items: baseline; gap: 10px;
-  margin-bottom: 6px; flex-wrap: wrap;
+.modal-lowest-price {
+  display: inline-block;
+  background: #B12704;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  width: fit-content;
 }
+/* Linha: -44%  R$999,00 */
+.modal-price-row {
+  display: flex; align-items: baseline; gap: 8px;
+  margin-bottom: 4px; flex-wrap: wrap;
+}
+/* -44% vermelho grande */
+.modal-disc {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 22px; font-weight: 700;
+  color: #B12704; letter-spacing: -0.3px;
+}
+/* Preço */
 .modal-price {
   font-family: 'Geist Mono', monospace;
   font-size: 28px; font-weight: 600;
-  color: var(--red); letter-spacing: -1px;
+  color: var(--text); letter-spacing: -1px;
 }
-.modal-disc {
-  background: var(--red); color: #fff;
-  font-size: 12px; font-weight: 700;
-  padding: 2px 8px; border-radius: 3px;
-}
+/* "De: R$1.799,00" — riscado abaixo */
+.modal-price-old { font-size: 12px; color: var(--text3); text-decoration: line-through; margin-bottom: 8px; }
 .modal-install { font-size: 12px; color: var(--text2); margin-bottom: 16px; }
 .modal-feats { margin-bottom: 20px; }
 .modal-feat {
@@ -1138,11 +1168,12 @@ footer {
         <div class="modal-brand" id="mBrand"></div>
         <div class="modal-name" id="mName"></div>
         <div class="modal-desc" id="mDesc"></div>
-        <div class="modal-price-old" id="mOld"></div>
+        <div id="mLowest"></div>
         <div class="modal-price-row">
-          <span class="modal-price" id="mPrice"></span>
           <span class="modal-disc" id="mDisc"></span>
+          <span class="modal-price" id="mPrice"></span>
         </div>
+        <div class="modal-price-old" id="mOld"></div>
         <div class="modal-install" id="mInstall"></div>
         <div class="modal-feats" id="mFeats"></div>
         <a class="modal-btn" id="mBtn" href="#" target="_blank" rel="nofollow noopener">
@@ -1318,11 +1349,11 @@ function cardHTML(p) {
         <span class="p-rating-count">(${p.avaliacoes||'0'})</span>
       </div>
       <div class="p-pricing">
-        <div class="p-price-old">${p.preco_de}</div>
         ${p.menor_preco ? '<div class="p-lowest-price">Menor preço em 365 dias</div>' : ''}
         <div class="p-price-row">
+          ${p.desconto ? `<span class="p-discount">-${p.desconto}</span>` : ''}
           <span class="p-price">${p.preco_por}</span>
-          ${p.desconto ? `<span class="p-discount">–${p.desconto}</span>` : ''}
+          ${p.preco_de ? `<span class="p-price-old">De: ${p.preco_de}</span>` : ''}
         </div>
         ${inst ? `<div class="p-installment">${inst}</div>` : ''}
       </div>
@@ -1343,20 +1374,23 @@ function openModal(id) {
   document.getElementById('mBrand').textContent = p.categoria;
   document.getElementById('mName').textContent = p.nome;
   document.getElementById('mDesc').textContent = p.descricao || 'Produto selecionado com base nas melhores avaliações da Amazon.';
-  document.getElementById('mOld').textContent = `De: ${p.preco_de}`;
+  document.getElementById('mOld').textContent = p.preco_de ? `De: ${p.preco_de}` : '';
   document.getElementById('mPrice').textContent = p.preco_por;
-  const discEl = document.getElementById('mDisc');
+  const lowestEl = document.getElementById('mLowest');
   if (p.menor_preco) {
-    discEl.textContent = 'Menor preço em 365 dias';
-    discEl.className = 'modal-lowest-price';
-    discEl.style.display = 'inline-block';
-  } else if (p.desconto) {
-    discEl.textContent = `–${p.desconto}`;
+    lowestEl.textContent = 'Menor preço em 365 dias';
+    lowestEl.className = 'modal-lowest-price';
+  } else {
+    lowestEl.textContent = '';
+    lowestEl.className = '';
+  }
+  const discEl = document.getElementById('mDisc');
+  if (p.desconto) {
+    discEl.textContent = `-${p.desconto}`;
     discEl.className = 'modal-disc';
-    discEl.style.display = 'inline-block';
   } else {
     discEl.textContent = '';
-    discEl.style.display = 'none';
+    discEl.className = '';
   }
   const inst = price(p) > 0 ? `ou em até 12x de R$ ${(price(p)/12).toFixed(2).replace('.',',')} no cartão` : '';
   document.getElementById('mInstall').textContent = inst;
