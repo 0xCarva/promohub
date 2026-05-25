@@ -1,1 +1,1 @@
-# ofertahub
+# promohub
