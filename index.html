@@ -235,58 +235,63 @@ img{display:block;max-width:100%}
   margin-left:-8px;
 }
 .hero-avatars span:first-child{margin-left:0}
-/* hero right — product showcase */
+/* hero right — notebook visual */
 .hero-visual{
-  position:relative;padding-bottom:40px;
-}
-.hero-card-main{
-  background:var(--bg2);border:1px solid var(--border2);
-  border-radius:var(--r-lg);overflow:hidden;
-  box-shadow:var(--shadow-lg);
-}
-.hero-card-img{
-  aspect-ratio:16/9;background:var(--bg3);
+  position:relative;
   display:flex;align-items:center;justify-content:center;
-  overflow:hidden;padding:20px;
 }
-.hero-card-img img{max-height:220px;width:100%;object-fit:contain}
-.hero-card-body{padding:20px}
-.hero-card-cat{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.hero-card-name{font-size:16px;font-weight:600;margin-bottom:12px;line-height:1.35;color:var(--text)}
-.hero-card-pricing{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.hero-card-old{font-size:13px;color:var(--text3);text-decoration:line-through}
-.hero-card-price{
-  font-family:'Geist Mono',monospace;
-  font-size:24px;font-weight:600;color:var(--text);
-  letter-spacing:-0.5px;
+/* float + glow animation */
+@keyframes heroFloat{
+  0%,100%{transform:translateY(0);filter:drop-shadow(0 8px 40px rgba(124,58,237,0.18));}
+  50%{transform:translateY(-14px);filter:drop-shadow(0 24px 60px rgba(124,58,237,0.38));}
 }
-.hero-card-disc{
-  background:rgba(239,68,68,0.15);color:var(--red);
-  font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;
+@keyframes heroGlow{
+  0%,100%{opacity:0.18;}
+  50%{opacity:0.45;}
 }
-.hero-card-btn{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  width:100%;background:var(--orange);color:#fff;
-  font-size:14px;font-weight:600;padding:11px;border-radius:var(--r-sm);
-  transition:all .2s;
+.hero-img-wrap{
+  position:relative;
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  animation:heroFloat 4s ease-in-out infinite;
 }
-.hero-card-btn:hover{background:var(--orange2);box-shadow:0 0 24px var(--orange-glow)}
-/* floating badges */
-.hero-inline-stats{
-  display:flex;align-items:center;gap:16px;
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--r-sm);padding:10px 14px;
-  margin-top:12px;
+/* white light overlay that pulses in sync with float */
+.hero-img-wrap::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.12) 0%,transparent 60%);
+  border-radius:var(--r-lg);
+  animation:heroGlow 4s ease-in-out infinite;
+  pointer-events:none;z-index:1;
 }
-.hero-inline-stat{
-  display:flex;align-items:center;gap:6px;
-  font-size:12px;color:var(--text2);
+.hero-img-wrap img{
+  display:block;
+  width:100%;max-width:540px;
+  border-radius:var(--r-lg);
+  border:1px solid var(--border2);
 }
-.hero-inline-stat strong{color:var(--text);font-weight:700;font-size:14px}
-.hero-inline-dot{
-  width:7px;height:7px;border-radius:50%;
-  animation:pulse 2s infinite;flex-shrink:0;
+/* economia badge — bottom left over image */
+.hero-economy-badge{
+  position:absolute;
+  bottom:20px;left:20px;z-index:2;
+  background:rgba(13,13,18,0.85);
+  backdrop-filter:blur(12px);
+  border:1px solid var(--border2);
+  border-radius:var(--r-sm);
+  padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 4px 24px rgba(0,0,0,0.4);
 }
+.hero-economy-icon{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(34,197,94,0.15);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.hero-economy-icon svg{width:16px;height:16px;stroke:var(--green);fill:none;stroke-width:2.5}
+.hero-economy-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:2px}
+.hero-economy-value{font-size:16px;font-weight:800;color:var(--text);letter-spacing:-0.3px;line-height:1}
+.hero-economy-value span{color:var(--green)}
 
 /* ─── COUNTDOWN ──────────────────────────────────────────── */
 .countdown-bar{
@@ -961,30 +966,19 @@ footer{
       </div>
     </div>
     <div class="hero-visual">
-      <div class="hero-card-main" id="heroCardMain">
-        <div class="hero-card-img" id="heroImgWrap" style="display:none"><img id="heroImg" src="" alt=""></div>
-        <div class="hero-card-body">
-          <div class="hero-card-cat" id="heroCat"></div>
-          <div class="hero-card-name" id="heroName"></div>
-          <div class="hero-card-pricing">
-            <span class="hero-card-old" id="heroOld"></span>
-            <span class="hero-card-price" id="heroPrice"></span>
-            <span class="hero-card-disc" id="heroDisc"></span>
+      <div class="hero-img-wrap">
+        <img
+          src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80"
+          alt="Dashboard de análise de ofertas"
+        >
+        <div class="hero-economy-badge">
+          <div class="hero-economy-icon">
+            <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
           </div>
-          <a class="hero-card-btn" id="heroBtn" href="#" target="_blank" rel="nofollow noopener">
-            Ver oferta na Amazon
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-          </a>
-        </div>
-      </div>
-      <div class="hero-inline-stats">
-        <div class="hero-inline-stat">
-          <span class="hero-inline-dot" style="background:var(--green)"></span>
-          <span>Atualizado agora</span>
-        </div>
-        <div class="hero-inline-stat">
-          <strong id="statSavings">0%</strong>
-          <span>desconto médio</span>
+          <div>
+            <div class="hero-economy-label">Economia média</div>
+            <div class="hero-economy-value"><span id="statSavings">+0%</span> / Mês</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1423,22 +1417,7 @@ document.addEventListener('DOMContentLoaded', init);
 
 // ── HERO CARD (shows first destaque product) ──────────────
 function buildHeroCard() {
-  const p = PRODUTOS.find(x => x.destaque) || PRODUTOS[0];
-  if (!p) return;
-  const heroImgWrap = document.getElementById('heroImgWrap');
-  const heroImgEl = document.getElementById('heroImg');
-  if (p.imagem) {
-    heroImgEl.src = p.imagem;
-    heroImgEl.alt = p.nome;
-    if (heroImgWrap) heroImgWrap.style.display = 'flex';
-  }
-  document.getElementById('heroCat').textContent = p.categoria;
-  document.getElementById('heroName').textContent = p.nome;
-  document.getElementById('heroOld').textContent = p.preco_de || '';
-  document.getElementById('heroPrice').textContent = p.preco_por;
-  document.getElementById('heroDisc').textContent = p.desconto ? `-${p.desconto}` : '';
-  document.getElementById('heroBtn').href = p.link;
-  document.getElementById('heroBtn').onclick = () => trackClick(p.id);
+  // Hero now uses static notebook image — nothing to build
 }
 
 // ── HOT TRACK ────────────────────────────────────────────
@@ -1633,7 +1612,16 @@ function animStats() {
   const avg = total > 0 ? Math.round(PRODUTOS.reduce((s,p) => s + pct(p), 0) / total) : 0;
   animNum('sProducts', total);
   animNum('sDiscount', avg, '%');
-  animNum('statSavings', avg, '%');
+  // Hero badge: shows +avg% / Mês
+  const el = document.getElementById('statSavings');
+  if (el) {
+    let curr = 0; const step = Math.ceil(avg/40);
+    const t = setInterval(() => {
+      curr = Math.min(curr+step, avg);
+      el.textContent = '+' + curr + '%';
+      if (curr >= avg) clearInterval(t);
+    }, 25);
+  }
 }
 function animNum(id, target, suffix='') {
   let curr = 0; const step = Math.ceil(target/40);
