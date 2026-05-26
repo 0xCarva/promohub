@@ -976,7 +976,7 @@ footer{
     </div>
     <div class="hero-visual">
       <div class="hero-card-main" id="heroCardMain">
-        <div class="hero-card-img"><img id="heroImg" src="" alt=""></div>
+        <div class="hero-card-img" id="heroImgWrap" style="display:none"><img id="heroImg" src="" alt=""></div>
         <div class="hero-card-body">
           <div class="hero-card-cat" id="heroCat"></div>
           <div class="hero-card-name" id="heroName"></div>
@@ -1027,7 +1027,7 @@ footer{
   <!-- STATS -->
   <div class="stats-strip">
     <div class="stat-item"><div class="stat-num" id="sProducts">0</div><div class="stat-label">Produtos em oferta hoje</div></div>
-    <div class="stat-item"><div class="stat-num" id="sDiscount">0<span>%</span></div><div class="stat-label">Desconto médio</div></div>
+    <div class="stat-item"><div class="stat-num" id="sDiscount">0%</div><div class="stat-label">Desconto médio</div></div>
     <div class="stat-item"><div class="stat-num">12<span>k+</span></div><div class="stat-label">Membros na comunidade</div></div>
     <div class="stat-item"><div class="stat-num">100<span>%</span></div><div class="stat-label">Verificados manualmente</div></div>
   </div>
@@ -1302,15 +1302,17 @@ let favs = JSON.parse(localStorage.getItem('ot_favs') || '[]');
 // ── BOOT ─────────────────────────────────────────────────
 function init() {
   if (typeof PRODUTOS === 'undefined' || !Array.isArray(PRODUTOS) || PRODUTOS.length === 0) return setTimeout(init, 30);
-  buildHeroCard();
-  buildHotTrack();
-  buildCouponStrip();
-  buildCatStrip();
-  render();
-  countdown();
-  animStats();
-  document.getElementById('sortSel').addEventListener('change', e => { sortBy = e.target.value; render(); });
-  document.getElementById('searchInput').addEventListener('input', e => { query = e.target.value.toLowerCase(); render(); });
+  try { buildHeroCard(); } catch(e) { console.warn('heroCard:', e); }
+  try { buildHotTrack(); } catch(e) { console.warn('hotTrack:', e); }
+  try { buildCouponStrip(); } catch(e) { console.warn('couponStrip:', e); }
+  try { buildCatStrip(); } catch(e) { console.warn('catStrip:', e); }
+  try { render(); } catch(e) { console.warn('render:', e); }
+  try { countdown(); } catch(e) { console.warn('countdown:', e); }
+  try { animStats(); } catch(e) { console.warn('animStats:', e); }
+  const sortEl = document.getElementById('sortSel');
+  const searchEl = document.getElementById('searchInput');
+  if (sortEl) sortEl.addEventListener('change', e => { sortBy = e.target.value; render(); });
+  if (searchEl) searchEl.addEventListener('input', e => { query = e.target.value.toLowerCase(); render(); });
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();
@@ -1319,8 +1321,13 @@ else init();
 function buildHeroCard() {
   const p = PRODUTOS.find(x => x.destaque) || PRODUTOS[0];
   if (!p) return;
-  document.getElementById('heroImg').src = p.imagem;
-  document.getElementById('heroImg').alt = p.nome;
+  const heroImgWrap = document.getElementById('heroImgWrap');
+  const heroImgEl = document.getElementById('heroImg');
+  if (p.imagem) {
+    heroImgEl.src = p.imagem;
+    heroImgEl.alt = p.nome;
+    if (heroImgWrap) heroImgWrap.style.display = 'flex';
+  }
   document.getElementById('heroCat').textContent = p.categoria;
   document.getElementById('heroName').textContent = p.nome;
   document.getElementById('heroOld').textContent = p.preco_de || '';
@@ -1515,7 +1522,8 @@ function countdown() {
 function animStats() {
   const total = PRODUTOS.length;
   const avg = total > 0 ? Math.round(PRODUTOS.reduce((s,p) => s + pct(p), 0) / total) : 0;
-  animNum('sProducts', total); animNum('sDiscount', avg);
+  animNum('sProducts', total);
+  animNum('sDiscount', avg, '%');
   animNum('statSavings', avg, '%');
 }
 function animNum(id, target, suffix='') {
