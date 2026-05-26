@@ -120,4 +120,4 @@ function tagAmazonURL(url) {
 
 PRODUTOS.forEach(p => { if (p.link) p.link = tagAmazonURL(p.link); });
 
-console.log('[OfertaTop] ' + PRODUTOS.length + ' produtos carregados | tag: ' + AFILIADO_TAG);
+console.log('[PromoClub] ' + PRODUTOS.length + ' produtos carregados | tag: ' + AFILIADO_TAG);
